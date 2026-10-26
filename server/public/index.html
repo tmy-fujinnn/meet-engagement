@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Class engagement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F5F8; --surface:#fff; --ink:#17212E; --muted:#5E6B7C; --rule:#D9DFE7;
+  --l1:#D5DAE1; --l2:#86C5B0; --l3:#0F6B55;
+  --ok:#0F6B55; --warn:#9A6200; --bad:#B03A2E; --gone:#8A94A3; --focus:#1D5FD1;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0F161F; --surface:#161F2B; --ink:#E7EDF4; --muted:#96A3B4; --rule:#263243;
+  --l1:#2C3848; --l2:#3F8F79; --l3:#5FD0AD;
+  --ok:#5FD0AD; --warn:#E3B04B; --bad:#F0766A; --gone:#6F7C8E; --focus:#7AA7FF;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 14px/1.45 "Instrument Sans",system-ui,sans-serif}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--rule)}
+h1{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:0}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.controls select,.controls input,.btn{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:7px 10px}
+.btn{cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--muted)}
+.btn.danger{color:var(--bad)}
+#msg{margin:14px 0 0;color:var(--muted)}
+#msg.err{color:var(--bad)}
+
+.figures{display:flex;flex-wrap:wrap;gap:6px 40px;margin:22px 0 4px}
+.fig b{display:block;font-size:30px;line-height:1.1;font-weight:700;font-variant-numeric:tabular-nums}
+.fig span{color:var(--muted)}
+
+.checkin{margin:22px 0;padding:14px 16px;background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--bad);border-radius:6px}
+.checkin.none{border-left-color:var(--ok)}
+.checkin h2{font-size:15px;margin:0 0 6px}
+.checkin ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.checkin li b{font-weight:600}
+.checkin li span{color:var(--muted)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;color:var(--muted);margin:0 0 10px;font-size:13px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:-2px}
+.l0{background:transparent;border:1px dashed var(--rule)} .l1{background:var(--l1)} .l2{background:var(--l2)} .l3{background:var(--l3)}
+
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--rule);border-radius:8px}
+.grid{min-width:900px}
+.row{display:grid;grid-template-columns:minmax(170px,1.3fr) 64px 56px 62px 70px 62px minmax(300px,4fr);gap:0 12px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--rule)}
+.row:last-child{border-bottom:0}
+.row.head{position:sticky;top:0;background:var(--surface);color:var(--muted);font-size:13px;padding-top:10px}
+.row.head button{all:unset;cursor:pointer}
+.row.head button:hover{color:var(--ink)}
+.row.head button:focus-visible{outline:2px solid var(--focus)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+.name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sub{display:block;font-weight:400;font-size:12.5px}
+.st-engaged{color:var(--ok)} .st-low{color:var(--warn)} .st-disengaged{color:var(--bad)} .st-left,.st-new{color:var(--gone)}
+.score{font-weight:700}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:1px;height:20px}
+.strip span{border-radius:1px}
+.cls{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:1px;height:44px;align-items:end}
+.cls span{background:var(--l2);border-radius:1px 1px 0 0;min-height:1px}
+.axis{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:2px}
+.row.cls-row{background:color-mix(in srgb,var(--bg) 60%,var(--surface))}
+.empty{padding:30px 16px;color:var(--muted)}
+details{margin-top:22px;color:var(--muted);max-width:75ch}
+details summary{cursor:pointer;color:var(--ink);font-weight:500}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Class engagement</h1>
+    <div class="controls">
+      <label class="sr" for="tok" style="position:absolute;left:-9999px">Dashboard token</label>
+      <input id="tok" type="password" placeholder="Dashboard token" size="16" autocomplete="off">
+      <select id="meeting" aria-label="Meeting"></select>
+      <button class="btn" id="csv">Export CSV</button>
+      <button class="btn danger" id="del">Delete this meeting's data</button>
+    </div>
+  </header>
+  <p id="msg"></p>
+
+  <section class="figures" id="figures" aria-label="Summary"></section>
+  <section class="checkin none" id="checkin" aria-live="polite"></section>
+
+  <p class="legend">
+    <span><i class="l0"></i>Not seen</span>
+    <span><i class="l1"></i>Present</span>
+    <span><i class="l2"></i>Attentive: camera on, Meet tab in focus</span>
+    <span><i class="l3"></i>Interacting: chat, speaking or hand raised</span>
+  </p>
+  <div class="scroll"><div class="grid" id="grid"></div></div>
+
+  <details>
+    <summary>How the score works</summary>
+    <p>Each student's score (0 to 100) combines three signals: how many minutes they chatted, spoke or raised a hand (40%; 25% of minutes counts as full marks), how often their camera was on (30%), and how often their Meet tab was in focus (30%). Students who don't run the extension are only observed by others, so tab focus is unknown and the weights become 60% participation and 40% camera. Treat the score as a prompt to check in, not a grade. A camera that's off can mean low bandwidth or a private setting, and quiet students may still be following along.</p>
+  </details>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let token = sessionStorage.getItem('tok') || '';
+let current = '', sortKey = 'score', sortDir = 1, timer = null, data = null;
+$('#tok').value = token;
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt = t => new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const STATUS = { engaged:'Engaged', low:'Low engagement', disengaged:'Disengaged', left:'Left the call', new:'Just joined' };
+
+function say(text, err){ const m = $('#msg'); m.textContent = text; m.className = err ? 'err' : ''; }
+
+async function api(path, opts = {}){
+  const r = await fetch(path, { ...opts, headers: { 'x-prof-token': token } });
+  if (r.status === 401) throw new Error('Token not accepted. Check the dashboard token.');
+  if (!r.ok) throw new Error('Request failed (' + r.status + ')');
+  return r;
+}
+
+async function loadMeetings(){
+  if (!token) { say('Enter your dashboard token to see class data.'); return; }
+  try {
+    const list = await (await api('/api/meetings')).json();
+    const sel = $('#meeting');
+    sel.innerHTML = list.map(m => `<option value="${esc(m.code)}">${esc(m.code)}: ${fmt(m.startedAt)}, ${m.participants} people</option>`).join('');
+    if (!list.length) { say('No meetings yet. Data appears once a student with the extension joins a Meet call.'); $('#grid').innerHTML = ''; $('#figures').innerHTML=''; $('#checkin').style.display='none'; return; }
+    if (!list.some(m => m.code === current)) current = list[0].code;
+    sel.value = current;
+    await loadMeeting();
+  } catch (e) { say(e.message, true); }
+}
+
+async function loadMeeting(){
+  try { data = await (await api('/api/meetings/' + encodeURIComponent(current))).json(); say(''); render(); }
+  catch (e) { say(e.message, true); }
+}
+
+function render(){
+  const d = data; if (!d) return;
+  const here = d.rows.filter(r => r.here);
+  const scored = here.filter(r => r.status !== 'new');
+  const avg = scored.length ? Math.round(scored.reduce((a, r) => a + r.score, 0) / scored.length) : 0;
+  const active5 = here.filter(r => r.idleMin < 5).length;
+  const alerts = d.rows.filter(r => r.alert);
+
+  $('#figures').innerHTML = [
+    [here.length, 'in the call now'],
+    [scored.length ? avg : '–', 'average score'],
+    [active5, 'active in the last 5 min'],
+    [alerts.length, 'to check in with'],
+  ].map(([n, l]) => `<div class="fig"><b>${n}</b><span>${l}</span></div>`).join('');
+
+  const c = $('#checkin');
+  c.style.display = '';
+  c.className = 'checkin' + (alerts.length ? '' : ' none');
+  c.innerHTML = alerts.length
+    ? `<h2>Check in with these students</h2><ul>${alerts.map(r => `<li><b>${esc(r.name)}</b> <span>${esc(r.alert)}</span></li>`).join('')}</ul>`
+    : `<h2>No one needs a check-in right now</h2><span style="color:var(--muted)">Students show up here after 10 minutes without chat, speaking or a raised hand, or when their Meet tab leaves focus.</span>`;
+
+  const rows = [...d.rows].sort((a, b) => {
+    const va = a[sortKey], vb = b[sortKey];
+    return (typeof va === 'string' ? va.localeCompare(vb) : (va ?? -1) - (vb ?? -1)) * sortDir;
+  });
+  const n = d.nMin;
+  const head = (k, label, cls='') => `<div class="${cls}"><button data-k="${k}" aria-label="Sort by ${label}">${label}${sortKey === k ? (sortDir > 0 ? ' ↑' : ' ↓') : ''}</button></div>`;
+
+  let html = `<div class="row head">${head('name','Student')}${head('score','Score','num')}${head('chat','Chat','num')}${head('spokeMin','Spoke','num')}${head('cameraPct','Camera','num')}${head('focusPct','Focus','num')}<div>Session</div></div>`;
+  html += `<div class="row cls-row"><div class="name">Class attentive<span class="sub" style="color:var(--muted)">share of people present each minute</span></div><div></div><div></div><div></div><div></div><div></div>
+    <div><div class="cls">${d.timeline.map((t, i) => `<span style="height:${Math.max(t.attentive, 2)}%" title="${fmt(d.startedAt + i * 60000)}: ${t.attentive}% attentive, ${t.interacting}% interacting"></span>`).join('')}</div>
+    <div class="axis"><span>${fmt(d.startedAt)}</span><span>${fmt(d.lastSeen)}</span></div></div></div>`;
+  html += rows.map(r => `<div class="row">
+      <div class="name" title="${r.ext ? '' : 'Not running the extension: observed from other students\u2019 screens'}">${esc(r.name)}${r.ext ? '' : ' *'}<span class="sub st-${r.status}">${STATUS[r.status]}</span></div>
+      <div class="num score st-${r.status}">${r.score}</div>
+      <div class="num">${r.chat}</div>
+      <div class="num">${r.spokeMin}m</div>
+      <div class="num">${r.cameraPct}%</div>
+      <div class="num">${r.focusPct === null ? '–' : r.focusPct + '%'}</div>
+      <div class="strip" style="grid-template-columns:repeat(${n},1fr)">${r.strip.map((l, i) => `<span class="l${l}" title="${esc(r.name)}, ${fmt(d.startedAt + i * 60000)}"></span>`).join('')}</div>
+    </div>`).join('');
+  if (!rows.length) html += '<div class="empty">No one has been seen in this meeting yet.</div>';
+  html += '<div class="row" style="color:var(--muted);font-size:12.5px;display:block">* Not running the extension: observed from other students\u2019 screens, so tab focus is unknown.</div>';
+  $('#grid').innerHTML = html;
+}
+
+$('#grid').addEventListener('click', e => {
+  const b = e.target.closest('button[data-k]'); if (!b) return;
+  const k = b.dataset.k;
+  if (sortKey === k) sortDir *= -1; else { sortKey = k; sortDir = k === 'name' ? 1 : 1; }
+  render();
+});
+$('#tok').addEventListener('change', e => { token = e.target.value.trim(); sessionStorage.setItem('tok', token); loadMeetings(); });
+$('#meeting').addEventListener('change', e => { current = e.target.value; loadMeeting(); });
+$('#csv').addEventListener('click', async () => {
+  if (!current) return;
+  try {
+    const blob = await (await api(`/api/meetings/${encodeURIComponent(current)}/export.csv`)).blob();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `engagement-${current}.csv`; a.click();
+  } catch (e) { say(e.message, true); }
+});
+$('#del').addEventListener('click', async () => {
+  if (!current || !confirm(`Permanently delete all engagement data for ${current}?`)) return;
+  try { await api('/api/meetings/' + encodeURIComponent(current), { method: 'DELETE' }); current = ''; loadMeetings(); }
+  catch (e) { say(e.message, true); }
+});
+
+loadMeetings();
+timer = setInterval(() => { if (token && current) loadMeeting(); }, 10000);
+</script>
+</body>
+</html>

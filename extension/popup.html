@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  body { width: 340px; margin: 0; padding: 14px; font: 13px/1.45 system-ui, sans-serif; color: #17212e; }
+  h1 { font-size: 15px; margin: 0 0 8px; }
+  label { display: block; margin: 8px 0 2px; font-weight: 600; }
+  input[type=text], input[type=url] { width: 100%; box-sizing: border-box; padding: 6px 8px; border: 1px solid #c5cdd8; border-radius: 6px; font: inherit; }
+  .consent { margin-top: 12px; padding: 10px; background: #f3f5f8; border-radius: 8px; }
+  .consent ul { margin: 4px 0 8px 18px; padding: 0; }
+  .consent label { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; margin: 0; }
+  button { margin-top: 12px; padding: 8px 12px; border: 0; border-radius: 6px; background: #0f6b55; color: #fff; font: 600 13px system-ui; cursor: pointer; width: 100%; }
+  #msg { margin-top: 8px; color: #0f6b55; min-height: 1em; }
+</style>
+<h1>Class engagement</h1>
+<label for="name">Your name as shown in Meet</label>
+<input id="name" type="text" placeholder="e.g. Maria Santos">
+<label for="code">Class code (from your professor)</label>
+<input id="code" type="text">
+<label for="server">Server URL</label>
+<input id="server" type="url" placeholder="http://localhost:3000">
+<div class="consent">
+  <strong>What is shared with your professor</strong>
+  <ul>
+    <li>Your name and when you are in the call</li>
+    <li>Whether your camera is on and whether you are speaking</li>
+    <li>Whether the Meet tab is in focus</li>
+    <li>When you send chat messages (time only; never the text)</li>
+  </ul>
+  <strong>Never shared:</strong> audio, video, screen content, message text, other tabs.
+  <label style="margin-top:8px"><input id="consent" type="checkbox"> I understand and agree to share this during class meetings. I can pause any time from the badge in Meet.</label>
+</div>
+<button id="save">Save</button>
+<div id="msg"></div>
+<script src="popup.js"></script>
